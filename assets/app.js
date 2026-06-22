@@ -10,9 +10,9 @@ const CONFIG = {
   postsDir: 'posts',
   giscus: {
     repo: 'ZerbLion/zrxl_blog',
-    repoId: '',         // ← 去 https://giscus.app 生成后填（data-repo-id）
+    repoId: 'R_kgDOTA_3bA',                 // data-repo-id
     category: 'Announcements',
-    categoryId: '',     // ← 同上（data-category-id）
+    categoryId: 'DIC_kwDOTA_3bM4C_qMH',     // data-category-id（Announcements 分类）
   },
 };
 
