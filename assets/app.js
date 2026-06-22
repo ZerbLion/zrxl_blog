@@ -77,10 +77,17 @@ async function listPosts() {
   return posts;
 }
 
+let _postsCache = null;
+// 列表缓存：同一会话里 renderList / renderPost 复用，省 GitHub API 调用（匿名每小时 60 次）。
+async function getPosts() {
+  if (!_postsCache) _postsCache = await listPosts();
+  return _postsCache;
+}
+
 async function renderList() {
   app.innerHTML = '<p class="state">加载文章列表…</p>';
   try {
-    const posts = await listPosts();
+    const posts = await getPosts();
     document.title = "Zerb's Blog";
     if (!posts.length) { app.innerHTML = '<p class="empty">还没有文章。</p>'; return; }
     app.innerHTML = '<ul class="post-list">' + posts.map(p => `
@@ -143,6 +150,22 @@ async function renderPost(dir) {
     fixRelativeUrls(bodyEl, base);
     bodyEl.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch (e) {} });
     document.title = (meta.title || dir) + " · Zerb's Blog";
+    // 上一篇/下一篇：取全量列表的相邻项（列表按 新→旧 排序）。拿不到列表就跳过，不影响正文。
+    try {
+      const posts = await getPosts();
+      const i = posts.findIndex(p => p.dir === dir);
+      const older = i >= 0 ? posts[i + 1] : null; // 更早
+      const newer = i >= 0 ? posts[i - 1] : null; // 更新
+      if (older || newer) {
+        const cell = (p, side, label) => p
+          ? `<a class="${side}" href="#/post/${encodeURIComponent(p.dir)}"><span class="post-nav-label">${label}</span><span class="post-nav-title">${escapeHtml(p.title)}</span></a>`
+          : `<span class="${side}"></span>`;
+        const nav = document.createElement('nav');
+        nav.className = 'post-nav';
+        nav.innerHTML = cell(older, 'prev', '← 更早') + cell(newer, 'next', '更新 →');
+        app.querySelector('.post').appendChild(nav);
+      }
+    } catch (e) { /* 列表获取失败：不显示上下篇，不影响正文 */ }
     window.scrollTo(0, 0);
     mountGiscus(dir);
   } catch (e) {
