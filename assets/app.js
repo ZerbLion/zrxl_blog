@@ -74,6 +74,18 @@ async function fetchText(url) {
 }
 
 async function listPosts() {
+  // 首选：静态 posts.json（push 时由 GitHub Action 生成）——不调用 GitHub API，永不被限流
+  try {
+    const r0 = await fetch('posts.json', { cache: 'no-cache' });
+    if (r0.ok) {
+      const list = await r0.json();
+      if (Array.isArray(list)) {
+        try { localStorage.setItem('postsCache', JSON.stringify(list)); } catch (e) {}
+        return list;
+      }
+    }
+  } catch (e) { /* 没有 posts.json：退回 GitHub API */ }
+
   try {
     const api = `https://api.github.com/repos/${CONFIG.repo}/contents/${CONFIG.postsDir}?ref=${CONFIG.branch}`;
     const r = await fetch(api, { headers: { Accept: 'application/vnd.github+json' } });

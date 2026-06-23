@@ -1,0 +1,42 @@
+name: Build posts.json
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'posts/**'
+      - 'scripts/gen-posts.mjs'
+      - '.github/workflows/build-posts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-posts
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate posts.json
+        run: node scripts/gen-posts.mjs
+
+      - name: Commit if changed
+        run: |
+          if [ -n "$(git status --porcelain posts.json)" ]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add posts.json
+            git commit -m "chore: rebuild posts.json"
+            git push
+          else
+            echo "posts.json 无变化，跳过提交"
+          fi
