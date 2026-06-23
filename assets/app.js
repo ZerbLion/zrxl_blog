@@ -139,18 +139,52 @@ function mountGiscus(term) {
   wrap.appendChild(s);
 }
 
+const LANG_LABEL = { en: 'English', zh: '中文', 'zh-CN': '中文', ja: '日本語' };
+
 async function renderPost(dir) {
   app.innerHTML = '<p class="state">加载文章…</p>';
   const base = `${CONFIG.postsDir}/${dir}/`;
   try {
-    const { meta, body } = parseFrontmatter(await fetchText(base + 'index.md'));
-    const html = DOMPurify.sanitize(marked.parse(body));
-    app.innerHTML = `<article class="post"><a class="back" href="#/">← 返回列表</a><div class="post-body">${html}</div></article>`;
+    // index.md 是默认语言版；frontmatter 里 translations: [zh] 声明有哪些其它语言（文件名 index.<lang>.md）
+    const primary = parseFrontmatter(await fetchText(base + 'index.md'));
+    const meta = primary.meta;
+    const tr = Array.isArray(meta.translations) ? meta.translations
+             : (meta.translations ? [meta.translations] : []);
+    const langs = [{ code: meta.lang || 'en', file: 'index.md', body: primary.body }]
+      .concat(tr.map(c => ({ code: c, file: `index.${c}.md`, body: null })));
+
+    let cur = localStorage.getItem('lang');
+    if (!langs.some(l => l.code === cur)) cur = langs[0].code;
+
+    const switcher = langs.length > 1
+      ? '<div class="lang-switch">' + langs.map(l =>
+          `<button data-lang="${l.code}">${LANG_LABEL[l.code] || l.code}</button>`).join('') + '</div>'
+      : '';
+    app.innerHTML = `<article class="post"><a class="back" href="#/">← 返回列表</a>${switcher}<div class="post-body"></div></article>`;
     const bodyEl = app.querySelector('.post-body');
-    fixRelativeUrls(bodyEl, base);
-    bodyEl.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch (e) {} });
+
+    // 切换语言只换正文，不动上一篇/下一篇和评论
+    async function load(code) {
+      const lang = langs.find(l => l.code === code) || langs[0];
+      if (lang.body === null) lang.body = parseFrontmatter(await fetchText(base + lang.file)).body;
+      bodyEl.innerHTML = DOMPurify.sanitize(marked.parse(lang.body));
+      fixRelativeUrls(bodyEl, base);
+      bodyEl.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch (e) {} });
+      app.querySelectorAll('.lang-switch button').forEach(b =>
+        b.classList.toggle('active', b.getAttribute('data-lang') === code));
+      document.documentElement.lang = code;
+    }
+    app.querySelectorAll('.lang-switch button').forEach(btn =>
+      btn.addEventListener('click', () => {
+        const c = btn.getAttribute('data-lang');
+        localStorage.setItem('lang', c);
+        load(c);
+      }));
+
+    await load(cur);
     document.title = (meta.title || dir) + " · Zerb's Blog";
-    // 上一篇/下一篇：取全量列表的相邻项（列表按 新→旧 排序）。拿不到列表就跳过，不影响正文。
+
+    // 上一篇/下一篇：与语言无关，渲染一次
     try {
       const posts = await getPosts();
       const i = posts.findIndex(p => p.dir === dir);
@@ -166,6 +200,7 @@ async function renderPost(dir) {
         app.querySelector('.post').appendChild(nav);
       }
     } catch (e) { /* 列表获取失败：不显示上下篇，不影响正文 */ }
+
     window.scrollTo(0, 0);
     mountGiscus(dir);
   } catch (e) {
