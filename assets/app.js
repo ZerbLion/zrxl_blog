@@ -31,7 +31,7 @@ const STR = {
         loadingPost: '加载文章…', postErr: '文章加载失败：', older: '← 更早', newer: '更新 →',
         footer: '纯 Markdown · 免构建 · push 即发布。' },
 };
-function t(k, lang) { return STR[lang || currentLang()][k]; }
+function t(k) { return STR.en[k]; } // 站点 chrome 一律英文（英文为主站点）；中文按钮只切文章正文
 function applyChrome(lang) {
   const f = document.getElementById('tagline'); if (f) f.textContent = t('footer', lang);
   document.documentElement.lang = (lang || currentLang()) === 'zh' ? 'zh-CN' : 'en';
@@ -74,25 +74,33 @@ async function fetchText(url) {
 }
 
 async function listPosts() {
-  const api = `https://api.github.com/repos/${CONFIG.repo}/contents/${CONFIG.postsDir}?ref=${CONFIG.branch}`;
-  const r = await fetch(api, { headers: { Accept: 'application/vnd.github+json' } });
-  if (!r.ok) throw new Error('GitHub API ' + r.status);
-  const items = await r.json();
-  const dirs = items.filter(it => it.type === 'dir').map(it => it.name);
-  const posts = await Promise.all(dirs.map(async name => {
-    const { date, slug } = parseDir(name);
-    let meta = {};
-    try { meta = parseFrontmatter(await fetchText(`${CONFIG.postsDir}/${name}/index.md`)).meta; } catch (e) {}
-    return {
-      dir: name,
-      title: meta.title || slug,
-      date: meta.date || date,
-      summary: meta.summary || '',
-      tags: Array.isArray(meta.tags) ? meta.tags : [],
-    };
-  }));
-  posts.sort((a, b) => String(b.date).localeCompare(String(a.date)));
-  return posts;
+  try {
+    const api = `https://api.github.com/repos/${CONFIG.repo}/contents/${CONFIG.postsDir}?ref=${CONFIG.branch}`;
+    const r = await fetch(api, { headers: { Accept: 'application/vnd.github+json' } });
+    if (!r.ok) throw new Error('GitHub API ' + r.status);
+    const items = await r.json();
+    const dirs = items.filter(it => it.type === 'dir').map(it => it.name);
+    const posts = await Promise.all(dirs.map(async name => {
+      const { date, slug } = parseDir(name);
+      let meta = {};
+      try { meta = parseFrontmatter(await fetchText(`${CONFIG.postsDir}/${name}/index.md`)).meta; } catch (e) {}
+      return {
+        dir: name,
+        title: meta.title || slug,
+        date: meta.date || date,
+        summary: meta.summary || '',
+        tags: Array.isArray(meta.tags) ? meta.tags : [],
+      };
+    }));
+    posts.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    try { localStorage.setItem('postsCache', JSON.stringify(posts)); } catch (e) {}
+    return posts;
+  } catch (e) {
+    // API 限流（匿名每小时 60 次）或网络失败时，回退到上次成功加载的列表，避免首页报错
+    const cached = localStorage.getItem('postsCache');
+    if (cached) { try { return JSON.parse(cached); } catch (_) {} }
+    throw e;
+  }
 }
 
 let _postsCache = null;
