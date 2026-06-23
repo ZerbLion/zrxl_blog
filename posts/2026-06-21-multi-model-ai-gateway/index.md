@@ -42,7 +42,7 @@ The sites fight scraping aggressively and redesign constantly; the scraping logi
 
 So I set it down and switched to a completely different idea.
 
-![Web scraping vs. direct API — the two routes compared](images/route-comparison.png)
+![Web scraping vs. direct API — the two routes compared](images/route-comparison-en.png)
 
 ---
 
@@ -54,7 +54,7 @@ The new idea fits in one sentence:
 
 The whole architecture looks like this 👇
 
-![Architecture diagram](images/arch.png)
+![Architecture diagram](images/arch-en.png)
 
 Top to bottom, just four layers:
 
@@ -103,7 +103,7 @@ I have to pull this one out on its own, because too many people get tangled up b
 
 So the right approach is **rule-based routing**: only let the foreign AIs' domains go through the proxy, and connect everything else directly. Faster and cheaper.
 
-![Which step needs a proxy: reaching the page is LAN-direct (no proxy); only the hop calling foreign models goes through the proxy](images/proxy-split.png)
+![Which step needs a proxy: reaching the page is LAN-direct (no proxy); only the hop calling foreign models goes through the proxy](images/proxy-split-en.png)
 
 ---
 

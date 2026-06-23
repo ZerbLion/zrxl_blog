@@ -19,6 +19,24 @@ const CONFIG = {
 const app = document.getElementById('app');
 document.getElementById('year').textContent = new Date().getFullYear();
 
+// 站点 UI 文案：跟随当前阅读语言（localStorage 'lang'，默认英文）
+function currentLang() { return localStorage.getItem('lang') === 'zh' ? 'zh' : 'en'; }
+const STR = {
+  en: { back: '← Back to posts', loadingList: 'Loading posts…', empty: 'No posts yet.',
+        listErr: 'Failed to load list: ', rate: 'If this is GitHub API rate limiting (60/hr for anonymous), just try again shortly.',
+        loadingPost: 'Loading…', postErr: 'Failed to load post: ', older: '← Older', newer: 'Newer →',
+        footer: 'Plain Markdown · no build · push to publish.' },
+  zh: { back: '← 返回列表', loadingList: '加载文章列表…', empty: '还没有文章。',
+        listErr: '列表加载失败：', rate: '若是 GitHub API 限流（匿名每小时 60 次），稍后再试即可。',
+        loadingPost: '加载文章…', postErr: '文章加载失败：', older: '← 更早', newer: '更新 →',
+        footer: '纯 Markdown · 免构建 · push 即发布。' },
+};
+function t(k, lang) { return STR[lang || currentLang()][k]; }
+function applyChrome(lang) {
+  const f = document.getElementById('tagline'); if (f) f.textContent = t('footer', lang);
+  document.documentElement.lang = (lang || currentLang()) === 'zh' ? 'zh-CN' : 'en';
+}
+
 function escapeHtml(s) {
   return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
@@ -85,11 +103,12 @@ async function getPosts() {
 }
 
 async function renderList() {
-  app.innerHTML = '<p class="state">加载文章列表…</p>';
+  applyChrome();
+  app.innerHTML = `<p class="state">${t('loadingList')}</p>`;
   try {
     const posts = await getPosts();
     document.title = "Zerb's Blog";
-    if (!posts.length) { app.innerHTML = '<p class="empty">还没有文章。</p>'; return; }
+    if (!posts.length) { app.innerHTML = `<p class="empty">${t('empty')}</p>`; return; }
     app.innerHTML = '<ul class="post-list">' + posts.map(p => `
       <li class="post-card">
         <a href="#/post/${encodeURIComponent(p.dir)}">
@@ -100,8 +119,8 @@ async function renderList() {
       </li>`).join('') + '</ul>';
     window.scrollTo(0, 0);
   } catch (e) {
-    app.innerHTML = `<p class="error">列表加载失败：${escapeHtml(e.message)}</p>
-      <p class="state"><small>若是 GitHub API 限流（匿名每小时 60 次），稍后再试即可。</small></p>`;
+    app.innerHTML = `<p class="error">${t('listErr')}${escapeHtml(e.message)}</p>
+      <p class="state"><small>${t('rate')}</small></p>`;
   }
 }
 
@@ -132,7 +151,7 @@ function mountGiscus(term) {
     'data-category': g.category, 'data-category-id': g.categoryId,
     'data-mapping': 'specific', 'data-term': term,
     'data-reactions-enabled': '1', 'data-emit-metadata': '0',
-    'data-theme': 'preferred_color_scheme', 'data-lang': 'zh-CN', 'data-loading': 'lazy',
+    'data-theme': 'preferred_color_scheme', 'data-lang': currentLang() === 'zh' ? 'zh-CN' : 'en', 'data-loading': 'lazy',
   };
   for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
   s.crossOrigin = 'anonymous'; s.async = true;
@@ -142,7 +161,8 @@ function mountGiscus(term) {
 const LANG_LABEL = { en: 'English', zh: '中文', 'zh-CN': '中文', ja: '日本語' };
 
 async function renderPost(dir) {
-  app.innerHTML = '<p class="state">加载文章…</p>';
+  applyChrome();
+  app.innerHTML = `<p class="state">${t('loadingPost')}</p>`;
   const base = `${CONFIG.postsDir}/${dir}/`;
   try {
     // index.md 是默认语言版；frontmatter 里 translations: [zh] 声明有哪些其它语言（文件名 index.<lang>.md）
@@ -160,7 +180,7 @@ async function renderPost(dir) {
       ? '<div class="lang-switch">' + langs.map(l =>
           `<button data-lang="${l.code}">${LANG_LABEL[l.code] || l.code}</button>`).join('') + '</div>'
       : '';
-    app.innerHTML = `<article class="post"><a class="back" href="#/">← 返回列表</a>${switcher}<div class="post-body"></div></article>`;
+    app.innerHTML = `<article class="post"><a class="back" href="#/">${t('back')}</a>${switcher}<div class="post-body"></div></article>`;
     const bodyEl = app.querySelector('.post-body');
 
     // 切换语言只换正文，不动上一篇/下一篇和评论
@@ -172,7 +192,10 @@ async function renderPost(dir) {
       bodyEl.querySelectorAll('pre code').forEach(el => { try { hljs.highlightElement(el); } catch (e) {} });
       app.querySelectorAll('.lang-switch button').forEach(b =>
         b.classList.toggle('active', b.getAttribute('data-lang') === code));
-      document.documentElement.lang = code;
+      applyChrome(code);
+      const backEl = app.querySelector('.back'); if (backEl) backEl.textContent = t('back', code);
+      const pl = app.querySelector('.post-nav .prev .post-nav-label'); if (pl) pl.textContent = t('older', code);
+      const nl = app.querySelector('.post-nav .next .post-nav-label'); if (nl) nl.textContent = t('newer', code);
     }
     app.querySelectorAll('.lang-switch button').forEach(btn =>
       btn.addEventListener('click', () => {
@@ -196,7 +219,7 @@ async function renderPost(dir) {
           : `<span class="${side}"></span>`;
         const nav = document.createElement('nav');
         nav.className = 'post-nav';
-        nav.innerHTML = cell(older, 'prev', '← 更早') + cell(newer, 'next', '更新 →');
+        nav.innerHTML = cell(older, 'prev', t('older')) + cell(newer, 'next', t('newer'));
         app.querySelector('.post').appendChild(nav);
       }
     } catch (e) { /* 列表获取失败：不显示上下篇，不影响正文 */ }
@@ -204,7 +227,7 @@ async function renderPost(dir) {
     window.scrollTo(0, 0);
     mountGiscus(dir);
   } catch (e) {
-    app.innerHTML = `<p class="error">文章加载失败：${escapeHtml(e.message)}</p><a class="back" href="#/">← 返回列表</a>`;
+    app.innerHTML = `<p class="error">${t('postErr')}${escapeHtml(e.message)}</p><a class="back" href="#/">${t('back')}</a>`;
   }
 }
 
@@ -215,4 +238,5 @@ function router() {
 }
 
 window.addEventListener('hashchange', router);
+applyChrome();
 router();
