@@ -5,6 +5,7 @@ summary: A farewell under a 38°C blaze — looking back to where it all felt ce
 wechat_url:
 tags: [writing, photography]
 lang: en
+translations: [zh]
 ---
 
 # Silence Is an Eternal Theme

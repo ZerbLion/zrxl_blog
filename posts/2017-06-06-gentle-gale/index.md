@@ -5,6 +5,7 @@ summary: A quiet afternoon at the Fourteen-Inch Resort — post-rock in my ears,
 wechat_url:
 tags: [writing, photography]
 lang: en
+translations: [zh]
 ---
 
 # Gentle Gale
