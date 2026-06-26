@@ -1,12 +1,12 @@
 <div align="center">
 
-# 📝 zrxl_blog
+# 📝 zero-build-blog
 
 [English](README.md) · **中文**
 
 **一个零构建、push 即发布的个人博客——写 Markdown、`git push`，GitHub Pages 上就自动渲染成一个干净的网站。没有生成器，没有 CMS，没有流水线。**
 
-[![Live](https://img.shields.io/badge/live-zerblion.github.io-0969da)](https://zerblion.github.io/zrxl_blog/)
+[![Live](https://img.shields.io/badge/live-zerblion.github.io-0969da)](https://zerblion.github.io/zero-build-blog/)
 ![Build](https://img.shields.io/badge/build-none%20(零构建)-2ea44f)
 ![Stack](https://img.shields.io/badge/stack-Vanilla%20JS%20%2B%20Markdown-f7df1e)
 ![Hosting](https://img.shields.io/badge/hosting-GitHub%20Pages-1f2328)
@@ -15,7 +15,7 @@
 
 <br/>
 
-[![zrxl_blog 首页](docs/screenshot-home.png)](https://zerblion.github.io/zrxl_blog/)
+[![zero-build-blog 首页](docs/screenshot-home.png)](https://zerblion.github.io/zero-build-blog/)
 
 </div>
 
@@ -25,7 +25,7 @@
 
 每个号称"简单"的博客，都要你装一个静态站点生成器、学它的模板、跑一次构建、再盯着部署。我只想要**写一个 Markdown 文件，它就出现在网上。**
 
-`zrxl_blog` 就是能做到这件事的最小东西：
+`zero-build-blog` 就是能做到这件事的最小东西：
 
 - **没有构建步骤。** 没有 Hugo / Jekyll / Astro，没有 `node_modules`，没有 CI。这个仓库本身就是网站。
 - **`git push` 就是部署。** 加个文件夹、push——GitHub Pages 托管，一套约 400 行的原生 JS 引擎负责渲染。

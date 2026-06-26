@@ -1,12 +1,12 @@
 <div align="center">
 
-# 📝 zrxl_blog
+# 📝 zero-build-blog
 
 **English** · [中文](README.zh-CN.md)
 
 **A zero-build, push-to-publish personal blog — write Markdown, `git push`, and a clean GitHub Pages site renders itself. No generator, no CMS, no pipeline.**
 
-[![Live](https://img.shields.io/badge/live-zerblion.github.io-0969da)](https://zerblion.github.io/zrxl_blog/)
+[![Live](https://img.shields.io/badge/live-zerblion.github.io-0969da)](https://zerblion.github.io/zero-build-blog/)
 ![Build](https://img.shields.io/badge/build-none%20(zero--build)-2ea44f)
 ![Stack](https://img.shields.io/badge/stack-Vanilla%20JS%20%2B%20Markdown-f7df1e)
 ![Hosting](https://img.shields.io/badge/hosting-GitHub%20Pages-1f2328)
@@ -15,7 +15,7 @@
 
 <br/>
 
-[![zrxl_blog home page](docs/screenshot-home.png)](https://zerblion.github.io/zrxl_blog/)
+[![zero-build-blog home page](docs/screenshot-home.png)](https://zerblion.github.io/zero-build-blog/)
 
 </div>
 
@@ -25,7 +25,7 @@
 
 Every "simple" blog wants you to install a static-site generator, learn its templating, run a build, and babysit a deploy. I just wanted to **write a Markdown file and have it show up online.**
 
-`zrxl_blog` is the smallest thing that does that:
+`zero-build-blog` is the smallest thing that does that:
 
 - **No build step.** No Hugo / Jekyll / Astro, no `node_modules`, no CI. The repo *is* the website.
 - **`git push` is the deploy.** Add a folder, push — GitHub Pages serves it and a ~400-line vanilla-JS engine renders it.
