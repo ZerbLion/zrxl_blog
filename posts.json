@@ -1,5 +1,18 @@
 [
   {
+    "dir": "2026-06-26-zero-build-blog",
+    "title": "I Built a Zero-Build Blog: Just Markdown and git push",
+    "date": "2026-06-26",
+    "summary": "No Hugo, no Jekyll, no node_modules, no CI. The repo is the website — write a Markdown file, push, and a ~400-line vanilla-JS engine renders it. Here's how it works and the one rate-limit pit I fell into.",
+    "tags": [
+      "blog",
+      "vanilla-js",
+      "github-pages",
+      "markdown",
+      "self-hosting"
+    ]
+  },
+  {
     "dir": "2026-06-21-multi-model-ai-gateway",
     "title": "Build Your Own Multi-Model AI Gateway in a Day: Turn Paid Subscriptions into a Family-Wide Hub",
     "date": "2026-06-21",
