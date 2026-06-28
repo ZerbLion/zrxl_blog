@@ -1,5 +1,44 @@
 [
   {
+    "dir": "2026-06-26-ai-chathub-chrome-extension",
+    "title": "AI ChatHub: a Multi-AI Side-Panel Extension That Hedges API vs. Tab-Orchestration",
+    "date": "2026-06-26",
+    "summary": "A WXT + React 19 MV3 side-panel extension that broadcasts one prompt to several AI panes. The interesting decision was shipping two engines at once — a clean OpenAI-compatible streaming mode and a \"webtab\" mode that drives your already-logged-in tabs — because each alone isn't enough.",
+    "tags": [
+      "chrome",
+      "extension",
+      "AI",
+      "javascript",
+      "opensource"
+    ]
+  },
+  {
+    "dir": "2026-06-26-amd-synology-temperature-json-api",
+    "title": "One Clean Temperature API for an AMD Synology NAS — CPU, Board, Every Disk, Cross-Checked",
+    "date": "2026-06-26",
+    "summary": "Getting temps off an AMD Synology is a maze — Glances can't see the board, the bundled smartctl is broken, AMD reports as Tctl not Core 0. So I pick the right source per value, merge them into one tiny JSON, and cross-check every reading against an independent source.",
+    "tags": [
+      "self-hosting",
+      "NAS",
+      "homelab",
+      "monitoring",
+      "docker"
+    ]
+  },
+  {
+    "dir": "2026-06-26-local-first-trading-dashboard",
+    "title": "Building a Local-First, Read-Only Trading Dashboard with FastAPI + React",
+    "date": "2026-06-26",
+    "summary": "A self-hosted dashboard that aggregates read-only brokerage positions, delayed market data, macro feeds and a personal rule base, computes expectancy locally, and assembles an LLM prompt — strictly read-only, it never places an order. A post about the engineering, not the trading.",
+    "tags": [
+      "webdev",
+      "dataviz",
+      "fastapi",
+      "react",
+      "self-hosting"
+    ]
+  },
+  {
     "dir": "2026-06-26-zero-build-blog",
     "title": "I Built a Zero-Build Blog: Just Markdown and git push",
     "date": "2026-06-26",
